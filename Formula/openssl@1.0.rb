@@ -1,7 +1,5 @@
-# This formula tracks 1.0.2 branch of OpenSSL, not the 1.1.0 branch. Due to
-# significant breaking API changes in 1.1.0 other formulae will be migrated
-# across slowly, so core will ship `openssl` & `openssl@1.1` for foreseeable.
-class Openssl < Formula
+# Extracted from pre- https://github.com/Homebrew/homebrew-core/pull/46876
+class OpensslAT10 < Formula
   desc "SSL/TLS cryptography library"
   homepage "https://openssl.org/"
   url "https://www.openssl.org/source/openssl-1.0.2t.tar.gz"
@@ -10,13 +8,14 @@ class Openssl < Formula
   sha256 "14cb464efe7ac6b54799b34456bd69558a749a4931ecfd9cf9f71d7881cac7bc"
 
   # bottle do
-  #   sha256 "c4a762d719c2be74ac686f1aafabb32f3c5d5ff3a98935c4925a1ddb9c750ee1" => :mojave
-  #   sha256 "b72b8d9e582713d909936d7236542b366f07d800f8ec0eaa2d487a95c4e93bd9" => :high_sierra
-  #   sha256 "e556bbb8902700cd3cb896e0635ccb517feb4e1266911840c4b3c9e9cd044f7e" => :sierra
+  #   sha256 "c9c5e017edabe41ae55ed10ba5b94b834ee494e7f362d7245fbb0b137c876810" => :catalina
+  #   sha256 "9874b2baf00f845355b163cb63b5c98a94a5cf7c08cda1d19876899b11b585c6" => :mojave
+  #   sha256 "20fa4d39cbc0ba091aed2ce72a4404e87c3bc323243ab3f92ccfd75c48cbe132" => :high_sierra
+  #   sha256 "bdbc44c56f63f27ab4dc12583b7f46a6485500f2a583dc8c9b848c4063f58927" => :sierra
   # end
 
   keg_only :provided_by_macos,
-    "Apple has deprecated use of OpenSSL in favor of its own TLS and crypto libraries"
+           "Apple has deprecated use of OpenSSL in favor of its own TLS and crypto libraries"
 
   def install
     # OpenSSL will prefer the PERL environment variable if set over $PATH
@@ -56,7 +55,7 @@ class Openssl < Formula
     certs_list = `security find-certificate -a -p #{keychains.join(" ")}`
     certs = certs_list.scan(
       /-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----/m,
-    )
+      )
 
     valid_certs = certs.select do |cert|
       IO.popen("#{bin}/openssl x509 -inform pem -checkend 0 -noout", "w") do |openssl_io|
@@ -85,7 +84,7 @@ class Openssl < Formula
   test do
     # Make sure the necessary .cnf file exists, otherwise OpenSSL gets moody.
     assert_predicate HOMEBREW_PREFIX/"etc/openssl/openssl.cnf", :exist?,
-            "OpenSSL requires the .cnf file for some functionality"
+                     "OpenSSL requires the .cnf file for some functionality"
 
     # Check OpenSSL itself functions as expected.
     (testpath/"testfile.txt").write("This is a test file")
